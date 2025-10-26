@@ -21,3 +21,24 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# Capacitor
+android/
+ios/
+capacitor.config.ts
+capacitor.config.json
+
+# IDE - VSCode
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Environment files
+.env
+.env.*

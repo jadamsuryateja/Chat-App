@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { StatusBar } from '@capacitor/status-bar';
 import { UserProvider } from './context/UserContext';
 import RoomList from './components/RoomList';
 import ChatRoom from './components/ChatRoom';
@@ -113,7 +114,23 @@ function AppContent() {
   );
 }
 
+async function hideStatusBar() {
+  try {
+    await StatusBar.hide();
+    await StatusBar.setOverlaysWebView({ overlay: true });
+    await StatusBar.setBackgroundColor({ color: '#000000' });
+  } catch (err) {
+    console.log('Status bar API not available');
+  }
+}
+
 export default function App() {
+  useEffect(() => {
+    hideStatusBar();
+    // Add fullscreen mode
+    document.documentElement.requestFullscreen?.();
+  }, []);
+
   return (
     <UserProvider>
       <AppContent />

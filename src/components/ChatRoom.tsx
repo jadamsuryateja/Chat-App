@@ -3,6 +3,7 @@ import { ArrowLeft, Send, Users, Copy, Check } from 'lucide-react';
 import { getMessages, sendMessage, subscribeToMessages, getRoomMembers } from '../services/chatService';
 import { useUser } from '../context/UserContext';
 import { Message, RoomMember } from '../lib/supabase';
+import HapticService from '../services/HapticService';
 
 interface ChatRoomProps {
   roomId: string;
@@ -29,10 +30,14 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
     const messageInterval = setInterval(() => {
       loadMessages();
       loadMembers();
-    }, 2000); // Update every 2 seconds
+    }, 2000);
 
-    // Set up realtime subscription
+    // Set up realtime subscription with haptic feedback
     const unsubscribe = subscribeToMessages(roomId, (message) => {
+      // Only vibrate if the message is from someone else
+      if (message.user_id !== userId) {
+        HapticService.doorKnock();
+      }
       setMessages((prev) => [...prev, message]);
     });
 
@@ -41,7 +46,7 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
       clearInterval(messageInterval);
       unsubscribe();
     };
-  }, [roomId]);
+  }, [roomId, userId]);
 
   useEffect(() => {
     scrollToBottom();
@@ -100,9 +105,11 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
 
     try {
       await sendMessage(roomId, userId, username, newMessage.trim());
+      HapticService.success(); // Haptic feedback on successful send
       setNewMessage('');
     } catch (error) {
       console.error('Error sending message:', error);
+      HapticService.error(); // Haptic feedback on error
     }
   };
 
