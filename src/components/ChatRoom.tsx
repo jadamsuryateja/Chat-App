@@ -32,18 +32,32 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
       loadMembers();
     }, 2000);
 
+    return () => {
+      clearInterval(messageInterval);
+    };
+  }, [roomId, userId]);
+
+  useEffect(() => {
+    let isSubscribed = true;
+
     // Set up realtime subscription with haptic feedback
-    const unsubscribe = subscribeToMessages(roomId, (message) => {
-      // Only vibrate if the message is from someone else
+    const unsubscribe = subscribeToMessages(roomId, async (message) => {
+      if (!isSubscribed) return;
+      
+      // Only trigger haptic feedback for received messages (not sent by current user)
       if (message.user_id !== userId) {
-        HapticService.doorKnock();
+        try {
+          await HapticService.doorKnock();
+        } catch (error) {
+          console.error('Haptic feedback failed:', error);
+        }
       }
+      
       setMessages((prev) => [...prev, message]);
     });
 
-    // Cleanup intervals and subscriptions
     return () => {
-      clearInterval(messageInterval);
+      isSubscribed = false;
       unsubscribe();
     };
   }, [roomId, userId]);
@@ -105,11 +119,11 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
 
     try {
       await sendMessage(roomId, userId, username, newMessage.trim());
-      HapticService.success(); // Haptic feedback on successful send
+      await HapticService.success(); // Haptic feedback on successful send
       setNewMessage('');
     } catch (error) {
       console.error('Error sending message:', error);
-      HapticService.error(); // Haptic feedback on error
+      await HapticService.error(); // Haptic feedback on error
     }
   };
 
@@ -126,7 +140,7 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
-      <div className="glass-panel border-b border-gray-800 p-4 flex items-center justify-between sticky top-0 z-10">
+      <div className="glass-panel border-b border-gray-800 p-4 flex items-center justify-between sticky top-0 z-10 chat-header">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <button
             onClick={onBack}
