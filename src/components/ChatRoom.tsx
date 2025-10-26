@@ -140,35 +140,38 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
-      <div className="glass-panel border-b border-gray-800 p-4 flex items-center justify-between sticky top-0 z-10 chat-header">
-        <div className="flex items-center gap-3 flex-1 min-w-0">
-          <button
-            onClick={onBack}
-            className="w-10 h-10 rounded-xl glass-panel hover:scale-110 transition-all duration-300 flex items-center justify-center"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div className="flex-1 min-w-0">
-            <h2 className="font-semibold text-lg truncate">{roomName}</h2>
-            <p className="text-xs text-gray-400 truncate">Room ID: {roomId.slice(0, 8)}...</p>
+      {/* Add safe-area padding to header */}
+      <div className="glass-panel border-b border-gray-800 sticky top-0 z-10 chat-header">
+        <div className="p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <button
+              onClick={onBack}
+              className="w-10 h-10 rounded-xl glass-panel hover:scale-110 transition-all duration-300 flex items-center justify-center"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div className="flex-1 min-w-0">
+              <h2 className="font-semibold text-lg truncate">{roomName}</h2>
+              <p className="text-xs text-gray-400 truncate">Room ID: {roomId.slice(0, 8)}...</p>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={copyRoomId}
-            className="w-10 h-10 rounded-xl glass-panel hover:scale-110 transition-all duration-300 flex items-center justify-center"
-          >
-            {copied ? <Check className="w-5 h-5 text-green-400" /> : <Copy className="w-5 h-5" />}
-          </button>
-          <button
-            onClick={() => setShowMembers(!showMembers)}
-            className="w-10 h-10 rounded-xl glass-panel hover:scale-110 transition-all duration-300 flex items-center justify-center relative"
-          >
-            <Users className="w-5 h-5" />
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full text-xs flex items-center justify-center border border-gray-600">
-              {members.length}
-            </span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={copyRoomId}
+              className="w-10 h-10 rounded-xl glass-panel hover:scale-110 transition-all duration-300 flex items-center justify-center"
+            >
+              {copied ? <Check className="w-5 h-5 text-green-400" /> : <Copy className="w-5 h-5" />}
+            </button>
+            <button
+              onClick={() => setShowMembers(!showMembers)}
+              className="w-10 h-10 rounded-xl glass-panel hover:scale-110 transition-all duration-300 flex items-center justify-center relative"
+            >
+              <Users className="w-5 h-5" />
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full text-xs flex items-center justify-center border border-gray-600">
+                {members.length}
+              </span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -191,7 +194,8 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
         </div>
       )}
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      {/* Messages section with safe-area padding */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 px-[max(1rem,env(safe-area-inset-left))]">
         {loading ? (
           <div className="text-center py-12">
             <div className="inline-block w-8 h-8 border-4 border-gray-700 border-t-white rounded-full animate-spin"></div>
@@ -234,22 +238,25 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
         <div ref={messagesEndRef} />
       </div>
 
-      <form onSubmit={handleSend} className="glass-panel border-t border-gray-800 p-4 sticky bottom-0">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type a message..."
-            className="flex-1 bg-gray-900 border border-gray-800 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-700 transition-all duration-300"
-          />
-          <button
-            type="submit"
-            disabled={!newMessage.trim()}
-            className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 hover:scale-110 disabled:opacity-50 disabled:hover:scale-100 transition-all duration-300 flex items-center justify-center"
-          >
-            <Send className="w-5 h-5" />
-          </button>
+      {/* Footer with safe-area padding */}
+      <form onSubmit={handleSend} className="glass-panel border-t border-gray-800 sticky bottom-0 chat-footer">
+        <div className="p-4 px-[max(1rem,env(safe-area-inset-left))]">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Type a message..."
+              className="flex-1 bg-gray-900 border border-gray-800 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-700 transition-all duration-300"
+            />
+            <button
+              type="submit"
+              disabled={!newMessage.trim()}
+              className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 hover:scale-110 disabled:opacity-50 disabled:hover:scale-100 transition-all duration-300 flex items-center justify-center"
+            >
+              <Send className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       </form>
     </div>

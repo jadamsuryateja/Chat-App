@@ -10,12 +10,20 @@
   body {
     @apply bg-black text-white;
     overflow-x: hidden;
+    /* Add safe-area padding for notches and cutouts */
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
 
-  /* Add specific padding for the chat header to account for cutout */
+  /* Improve header padding for cutouts */
   .chat-header {
     padding-top: max(1rem, env(safe-area-inset-top));
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+
+  /* Add bottom padding for navigation bars */
+  .chat-footer {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
 }
 
