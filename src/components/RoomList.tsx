@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, MessageCircle, Users, Lock } from 'lucide-react';
+import { Plus, MessageCircle, Users, Lock, Linkedin, Github, Instagram } from 'lucide-react';
 import { getUserRooms } from '../services/chatService';
 import { useUser } from '../context/UserContext';
 import { ChatRoom } from '../lib/supabase';
@@ -114,6 +114,44 @@ export default function RoomList({ onSelectRoom, onCreateRoom, onJoinRoom }: Roo
           )}
         </div>
       </div>
+
+      <footer className="glass-panel border-t border-gray-800 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+        <div className="max-w-2xl mx-auto">
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex items-center gap-6">
+              <a
+                href="https://www.linkedin.com/in/jadamsurya"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:scale-110 transition-transform duration-300"
+              >
+                <Linkedin className="w-5 h-5 text-gray-400 hover:text-white" />
+              </a>
+              <a
+                href="https://github.com/jadamsuryateja"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:scale-110 transition-transform duration-300"
+              >
+                <Github className="w-5 h-5 text-gray-400 hover:text-white" />
+              </a>
+              <a
+                href="https://www.instagram.com/_s_u_r_y_a_.j_/
+"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:scale-110 transition-transform duration-300"
+              >
+                <Instagram className="w-5 h-5 text-gray-400 hover:text-white" />
+              </a>
+            </div>
+            <div className="text-center text-sm text-gray-400">
+              <p className="mb-1">Developed by</p>
+              <p className="font-medium">JADAM SURYA TEJA & KRUPA CHAITANYA YELLAMELLI</p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
