@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, MessageCircle, Users, Lock, Github, Linkedin, Instagram } from 'lucide-react';
+import { Plus, MessageCircle, Users, Lock } from 'lucide-react';
 import { getUserRooms } from '../services/chatService';
 import { useUser } from '../context/UserContext';
 import { ChatRoom } from '../lib/supabase';
@@ -33,8 +33,8 @@ export default function RoomList({ onSelectRoom, onCreateRoom, onJoinRoom }: Roo
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
-      <div className="flex-1 p-4 md:p-6 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] px-[max(1rem,env(safe-area-inset-left))]">
+    <div className="h-screen bg-black text-white flex flex-col overflow-hidden">
+      <div className="flex-1 overflow-y-auto p-4 md:p-6 pt-[max(1rem,env(safe-area-inset-top))]">
         <div className="max-w-2xl mx-auto">
           <div className="mb-8 text-center animate-fade-in">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 backdrop-blur-xl border border-gray-700 mb-4">
@@ -114,51 +114,6 @@ export default function RoomList({ onSelectRoom, onCreateRoom, onJoinRoom }: Roo
           )}
         </div>
       </div>
-
-      {/* Footer Section */}
-      <footer className="w-full border-t border-gray-800 mt-auto px-4 py-8 glass-panel">
-        <div className="max-w-2xl mx-auto text-center">
-          <p className="text-gray-400 text-sm mb-2">Developed by</p>
-          <p className="text-gray-200 font-semibold mb-6 text-lg">
-            JADAM SURYA TEJA & KRUPA CHAITANYA YELLAMELLI
-          </p>
-          <div className="flex justify-center items-center gap-8">
-            <a
-              href="https://www.linkedin.com/in/jadamsurya"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-400 hover:text-blue-500 transition-all duration-300 flex flex-col items-center gap-2 group"
-            >
-              <div className="p-3 rounded-full bg-gray-800/50 backdrop-blur-sm group-hover:bg-blue-500/10">
-                <Linkedin className="w-6 h-6" />
-              </div>
-              <span className="text-xs">LinkedIn</span>
-            </a>
-            <a
-              href="https://github.com/jadamsuryateja"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-400 hover:text-white transition-all duration-300 flex flex-col items-center gap-2 group"
-            >
-              <div className="p-3 rounded-full bg-gray-800/50 backdrop-blur-sm group-hover:bg-white/10">
-                <Github className="w-6 h-6" />
-              </div>
-              <span className="text-xs">GitHub</span>
-            </a>
-            <a
-              href="https://www.instagram.com/_s_u_r_y_a_.j_/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-400 hover:text-pink-500 transition-all duration-300 flex flex-col items-center gap-2 group"
-            >
-              <div className="p-3 rounded-full bg-gray-800/50 backdrop-blur-sm group-hover:bg-pink-500/10">
-                <Instagram className="w-6 h-6" />
-              </div>
-              <span className="text-xs">Instagram</span>
-            </a>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

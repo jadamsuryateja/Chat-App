@@ -3,7 +3,7 @@ import { ArrowLeft, Send, Users, Copy, Check } from 'lucide-react';
 import { getMessages, sendMessage, subscribeToMessages, getRoomMembers } from '../services/chatService';
 import { useUser } from '../context/UserContext';
 import { Message, RoomMember } from '../lib/supabase';
-import HapticService from '../services/HapticService';
+import { triggerHapticFeedback, showNotification, isAppInForeground } from '../services/notificationService';
 
 interface ChatRoomProps {
   roomId: string;
@@ -26,68 +26,73 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
     loadMessages();
     loadMembers();
 
-    // Set up real-time updates
+    // Set up real-time updates with both polling and subscription
     const messageInterval = setInterval(() => {
       loadMessages();
       loadMembers();
     }, 2000);
 
-    return () => {
-      clearInterval(messageInterval);
-    };
-  }, [roomId, userId]);
-
-  useEffect(() => {
-    let isSubscribed = true;
-
-    // Set up realtime subscription with haptic feedback
+    // Set up realtime subscription as backup
     const unsubscribe = subscribeToMessages(roomId, async (message) => {
-      if (!isSubscribed) return;
-      
-      // Only trigger haptic feedback for received messages (not sent by current user)
-      if (message.user_id !== userId) {
-        try {
-          await HapticService.doorKnock();
-        } catch (error) {
-          console.error('Haptic feedback failed:', error);
+      // Add new message and trigger notifications
+      setMessages(prev => {
+        // Check if message already exists
+        if (!prev.some(m => m.id === message.id)) {
+          if (message.user_id !== userId) {
+            if (isAppInForeground()) {
+              triggerHapticFeedback();
+            } else {
+              showNotification(
+                `${message.username} in ${roomName}`,
+                message.content,
+                roomId
+              );
+            }
+          }
+          return [...prev, message];
         }
-      }
-      
-      setMessages((prev) => [...prev, message]);
+        return prev;
+      });
     });
 
     return () => {
-      isSubscribed = false;
+      clearInterval(messageInterval);
       unsubscribe();
     };
-  }, [roomId, userId]);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, [roomId, userId, roomName]);
 
   // Optimize loadMessages to avoid duplicate messages
   const loadMessages = async () => {
     try {
-      setLoading((prev) => (!prev ? prev : false)); // Only show loading on initial load
+      setLoading((prev) => (!prev ? prev : false));
       const data = await getMessages(roomId);
-      setMessages((prevMessages) => {
-        // Only update if we have new messages
-        if (data.length !== prevMessages.length) {
-          return data;
-        }
-        // Check if last message is different
-        if (data.length > 0 && prevMessages.length > 0) {
-          const lastNew = data[data.length - 1];
-          const lastCurrent = prevMessages[prevMessages.length - 1];
-          if (lastNew.id !== lastCurrent.id) {
-            return data;
+      
+      setMessages(prevMessages => {
+        // Find new messages
+        const newMessages = data.filter(newMsg => 
+          !prevMessages.some(oldMsg => oldMsg.id === newMsg.id)
+        );
+
+        // If we have new messages, append them
+        if (newMessages.length > 0) {
+          // Check for notifications on the latest message
+          const latestMessage = newMessages[newMessages.length - 1];
+          if (latestMessage.user_id !== userId) {
+            if (isAppInForeground()) {
+              triggerHapticFeedback();
+            } else {
+              showNotification(
+                `${latestMessage.username} in ${roomName}`,
+                latestMessage.content,
+                roomId
+              );
+            }
           }
+          // Scroll to bottom after new messages
+          setTimeout(scrollToBottom, 100);
+          return [...prevMessages, ...newMessages];
         }
+
         return prevMessages;
       });
     } catch (error) {
@@ -95,17 +100,13 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
     }
   };
 
-  // Optimize loadMembers to avoid unnecessary re-renders
+  // Optimize loadMembers with comparison
   const loadMembers = async () => {
     try {
       const data = await getRoomMembers(roomId);
-      setMembers((prevMembers) => {
-        // Only update if member count or composition changed
-        if (data.length !== prevMembers.length) {
-          return data;
-        }
-        const prevIds = new Set(prevMembers.map((m) => m.id));
-        const hasChanges = data.some((member) => !prevIds.has(member.id));
+      setMembers(prevMembers => {
+        const prevIds = new Set(prevMembers.map(m => m.id));
+        const hasChanges = data.some(member => !prevIds.has(member.id));
         return hasChanges ? data : prevMembers;
       });
     } catch (error) {
@@ -119,11 +120,11 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
 
     try {
       await sendMessage(roomId, userId, username, newMessage.trim());
-      await HapticService.success(); // Haptic feedback on successful send
       setNewMessage('');
+      // Scroll to bottom after sending
+      setTimeout(scrollToBottom, 100);
     } catch (error) {
       console.error('Error sending message:', error);
-      await HapticService.error(); // Haptic feedback on error
     }
   };
 
@@ -138,11 +139,46 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
     return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
   };
 
+  // Add this effect to scroll to bottom when messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  // Add this effect for fullscreen mode
+  useEffect(() => {
+    const enableFullScreen = async () => {
+      try {
+        if (document.documentElement.requestFullscreen) {
+          await document.documentElement.requestFullscreen();
+        }
+      } catch (error) {
+        console.error('Failed to enable fullscreen:', error);
+      }
+    };
+
+    enableFullScreen();
+
+    return () => {
+      if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(err => console.error(err));
+      }
+    };
+  }, []);
+
+  // Add this function for smooth scrolling
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'end',
+      });
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
-      {/* Add safe-area padding to header */}
-      <div className="glass-panel border-b border-gray-800 sticky top-0 z-10 chat-header">
-        <div className="p-4 flex items-center justify-between">
+    <div className="h-screen bg-black text-white flex flex-col overflow-hidden">
+      <div className="glass-panel border-b border-gray-800 flex-shrink-0">
+        <div className="p-4 pt-[max(1rem,env(safe-area-inset-top))] flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <button
               onClick={onBack}
@@ -194,8 +230,7 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
         </div>
       )}
 
-      {/* Messages section with safe-area padding */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 px-[max(1rem,env(safe-area-inset-left))]">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {loading ? (
           <div className="text-center py-12">
             <div className="inline-block w-8 h-8 border-4 border-gray-700 border-t-white rounded-full animate-spin"></div>
@@ -238,9 +273,8 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Footer with safe-area padding */}
-      <form onSubmit={handleSend} className="glass-panel border-t border-gray-800 sticky bottom-0 chat-footer">
-        <div className="p-4 px-[max(1rem,env(safe-area-inset-left))]">
+      <form onSubmit={handleSend} className="glass-panel border-t border-gray-800 flex-shrink-0">
+        <div className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
           <div className="flex gap-2">
             <input
               type="text"
