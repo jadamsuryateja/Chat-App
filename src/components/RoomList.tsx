@@ -179,7 +179,7 @@ export default function RoomList({
             </div>
             <div className="text-center text-sm text-gray-400">
               <p className="mb-1">Developed by</p>
-              <p className="font-medium">JADAM SURYA TEJA & KRUPA CHAITANYA YELL</p>
+              <p className="font-medium">JADAM SURYA TEJA & KRUPA CHAITANYA YELLAMELLI</p>
             </div>
           </div>
         </div>
