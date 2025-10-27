@@ -137,8 +137,12 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
 
   return (
     <div className="h-screen bg-black text-white flex flex-col overflow-hidden">
-      <div className="glass-panel border-b border-gray-800 flex-shrink-0">
-        <div className="p-4 pt-[max(1rem,env(safe-area-inset-top))] flex items-center justify-between">
+      <div className="glass-panel border-b border-gray-800 flex-shrink-0 safe-area-top">
+        <div className="p-4 flex items-center justify-between" style={{
+          paddingTop: 'max(1rem, env(safe-area-inset-top))',
+          paddingLeft: 'max(1rem, env(safe-area-inset-left))',
+          paddingRight: 'max(1rem, env(safe-area-inset-right))'
+        }}>
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <button
               onClick={onBack}

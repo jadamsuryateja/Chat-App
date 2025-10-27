@@ -94,3 +94,16 @@
     background: rgba(255, 255, 255, 0.2);
   }
 }
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+  /* Fallback for browsers that don't support env() */
+  padding-top: constant(safe-area-inset-top);
+  /* Older iOS versions */
+}
+
+@supports not (padding: env(safe-area-inset-top)) {
+  .safe-area-top {
+    padding-top: 1rem;
+  }
+}
