@@ -20,8 +20,6 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
   useEffect(() => {
     // Initial load
@@ -90,8 +88,6 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
               );
             }
           }
-          // Scroll to bottom after new messages
-          setTimeout(scrollToBottom, 100);
           return [...prevMessages, ...newMessages];
         }
 
@@ -123,8 +119,6 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
     try {
       await sendMessage(roomId, userId, username, newMessage.trim());
       setNewMessage('');
-      // Scroll to bottom after sending
-      setTimeout(scrollToBottom, 100);
     } catch (error) {
       console.error('Error sending message:', error);
     }
@@ -141,71 +135,10 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
     return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
   };
 
-  // Add this effect to scroll to bottom when messages change
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  // Add this effect for fullscreen mode
-  useEffect(() => {
-    const enableFullScreen = async () => {
-      try {
-        if (document.documentElement.requestFullscreen) {
-          await document.documentElement.requestFullscreen();
-        }
-      } catch (error) {
-        console.error('Failed to enable fullscreen:', error);
-      }
-    };
-
-    enableFullScreen();
-
-    return () => {
-      if (document.fullscreenElement && document.exitFullscreen) {
-        document.exitFullscreen().catch(err => console.error(err));
-      }
-    };
-  }, []);
-
-  // Add this function for smooth scrolling
-  const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'end',
-      });
-    }
-  };
-
-  // Add this useEffect for keyboard handling
-  useEffect(() => {
-    const handleResize = () => {
-      if (inputRef.current) {
-        const visualViewport = window.visualViewport;
-        if (visualViewport) {
-          const isKeyboard = visualViewport.height < window.innerHeight;
-          setIsKeyboardVisible(isKeyboard);
-          if (isKeyboard) {
-            inputRef.current.scrollIntoView({ behavior: 'smooth' });
-          }
-        }
-      }
-    };
-
-    window.visualViewport?.addEventListener('resize', handleResize);
-    window.visualViewport?.addEventListener('scroll', handleResize);
-
-    return () => {
-      window.visualViewport?.removeEventListener('resize', handleResize);
-      window.visualViewport?.removeEventListener('scroll', handleResize);
-    };
-  }, []);
-
   return (
-    <div className="fixed inset-0 flex flex-col bg-black text-white">
-      {/* Header */}
-      <div className="glass-panel border-b border-gray-800">
-        <div className="safe-top safe-left safe-right p-4 flex items-center justify-between">
+    <div className="h-screen bg-black text-white flex flex-col overflow-hidden">
+      <div className="glass-panel border-b border-gray-800 flex-shrink-0">
+        <div className="p-4 pt-[max(1rem,env(safe-area-inset-top))] flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <button
               onClick={onBack}
@@ -238,7 +171,6 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
         </div>
       </div>
 
-      {/* Members list */}
       {showMembers && (
         <div className="glass-panel border-b border-gray-800 p-4 animate-fade-in">
           <h3 className="font-semibold mb-3 text-sm text-gray-400">Members ({members.length})</h3>
@@ -258,7 +190,6 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
         </div>
       )}
 
-      {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {loading ? (
           <div className="text-center py-12">
@@ -302,20 +233,10 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input form */}
-      <form 
-        onSubmit={handleSend} 
-        className={`glass-panel border-t border-gray-800 transition-all duration-300 ${
-          isKeyboardVisible ? 'sticky bottom-0' : ''
-        }`}
-        style={{
-          paddingBottom: isKeyboardVisible ? '0px' : 'env(safe-area-inset-bottom)'
-        }}
-      >
-        <div className="p-4">
+      <form onSubmit={handleSend} className="glass-panel border-t border-gray-800 flex-shrink-0">
+        <div className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
           <div className="flex gap-2">
             <input
-              ref={inputRef}
               type="text"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
