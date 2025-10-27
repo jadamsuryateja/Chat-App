@@ -7,14 +7,16 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  html, body, #root {
-    @apply h-full w-full fixed inset-0 overflow-hidden;
+  body {
+    @apply bg-black text-white overscroll-none;
+    height: -webkit-fill-available;
+    overflow: hidden;
   }
 
-  body {
-    @apply bg-black text-white;
-    /* System-wide safe area insets */
-    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  #root {
+    height: 100vh;
+    height: -webkit-fill-available;
+    overflow: hidden;
   }
 
   /* Improve header padding for cutouts */
@@ -28,28 +30,18 @@
   .chat-footer {
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
+
+  /* Fix for iOS keyboard behavior */
+  @supports (-webkit-touch-callout: none) {
+    .h-screen {
+      height: -webkit-fill-available;
+    }
+  }
 }
 
 @layer components {
   .glass-panel {
     @apply bg-white/5 backdrop-blur-xl border border-white/10;
-  }
-
-  /* Safe area aware components */
-  .safe-top {
-    padding-top: max(1rem, env(safe-area-inset-top));
-  }
-
-  .safe-bottom {
-    padding-bottom: max(1rem, env(safe-area-inset-bottom));
-  }
-
-  .safe-left {
-    padding-left: max(1rem, env(safe-area-inset-left));
-  }
-
-  .safe-right {
-    padding-right: max(1rem, env(safe-area-inset-right));
   }
 }
 

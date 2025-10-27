@@ -20,6 +20,8 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
   useEffect(() => {
     // Initial load
@@ -175,6 +177,30 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
     }
   };
 
+  // Add this useEffect for keyboard handling
+  useEffect(() => {
+    const handleResize = () => {
+      if (inputRef.current) {
+        const visualViewport = window.visualViewport;
+        if (visualViewport) {
+          const isKeyboard = visualViewport.height < window.innerHeight;
+          setIsKeyboardVisible(isKeyboard);
+          if (isKeyboard) {
+            inputRef.current.scrollIntoView({ behavior: 'smooth' });
+          }
+        }
+      }
+    };
+
+    window.visualViewport?.addEventListener('resize', handleResize);
+    window.visualViewport?.addEventListener('scroll', handleResize);
+
+    return () => {
+      window.visualViewport?.removeEventListener('resize', handleResize);
+      window.visualViewport?.removeEventListener('scroll', handleResize);
+    };
+  }, []);
+
   return (
     <div className="fixed inset-0 flex flex-col bg-black text-white">
       {/* Header */}
@@ -277,10 +303,19 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
       </div>
 
       {/* Input form */}
-      <form onSubmit={handleSend} className="glass-panel border-t border-gray-800">
-        <div className="safe-bottom safe-left safe-right p-4">
+      <form 
+        onSubmit={handleSend} 
+        className={`glass-panel border-t border-gray-800 transition-all duration-300 ${
+          isKeyboardVisible ? 'sticky bottom-0' : ''
+        }`}
+        style={{
+          paddingBottom: isKeyboardVisible ? '0px' : 'env(safe-area-inset-bottom)'
+        }}
+      >
+        <div className="p-4">
           <div className="flex gap-2">
             <input
+              ref={inputRef}
               type="text"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
