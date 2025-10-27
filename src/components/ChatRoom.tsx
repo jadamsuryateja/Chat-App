@@ -239,18 +239,18 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
 
       <form onSubmit={handleSend} className="glass-panel border-t border-gray-800 flex-shrink-0">
         <div className="p-4 safe-area-bottom">
-          <div className="flex gap-2 max-w-2xl mx-auto">
+          <div className="flex gap-2">
             <input
               type="text"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               placeholder="Type a message..."
-              className="flex-1 bg-gray-900 border border-gray-800 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-700 transition-all duration-300"
+              className="flex-1 bg-gray-900 border border-gray-800 rounded-t-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-700 transition-all duration-300"
             />
             <button
               type="submit"
               disabled={!newMessage.trim()}
-              className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 hover:scale-110 disabled:opacity-50 disabled:hover:scale-100 transition-all duration-300 flex items-center justify-center"
+              className="w-12 h-12 bg-gradient-to-br from-gray-800 to-gray-900 disabled:opacity-50 transition-all duration-300 flex items-center justify-center"
             >
               <Send className="w-5 h-5" />
             </button>
