@@ -7,10 +7,13 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  html, body, #root {
+    @apply h-full w-full fixed inset-0 overflow-hidden;
+  }
+
   body {
     @apply bg-black text-white;
-    overflow-x: hidden;
-    /* Add safe-area padding for notches and cutouts */
+    /* System-wide safe area insets */
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
 
@@ -30,6 +33,23 @@
 @layer components {
   .glass-panel {
     @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  }
+
+  /* Safe area aware components */
+  .safe-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+
+  .safe-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .safe-left {
+    padding-left: max(1rem, env(safe-area-inset-left));
+  }
+
+  .safe-right {
+    padding-right: max(1rem, env(safe-area-inset-right));
   }
 }
 

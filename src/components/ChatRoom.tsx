@@ -176,9 +176,10 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
   };
 
   return (
-    <div className="h-screen bg-black text-white flex flex-col overflow-hidden">
-      <div className="glass-panel border-b border-gray-800 flex-shrink-0">
-        <div className="p-4 pt-[max(1rem,env(safe-area-inset-top))] flex items-center justify-between">
+    <div className="fixed inset-0 flex flex-col bg-black text-white">
+      {/* Header */}
+      <div className="glass-panel border-b border-gray-800">
+        <div className="safe-top safe-left safe-right p-4 flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <button
               onClick={onBack}
@@ -211,6 +212,7 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
         </div>
       </div>
 
+      {/* Members list */}
       {showMembers && (
         <div className="glass-panel border-b border-gray-800 p-4 animate-fade-in">
           <h3 className="font-semibold mb-3 text-sm text-gray-400">Members ({members.length})</h3>
@@ -230,6 +232,7 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
         </div>
       )}
 
+      {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {loading ? (
           <div className="text-center py-12">
@@ -273,8 +276,9 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
         <div ref={messagesEndRef} />
       </div>
 
-      <form onSubmit={handleSend} className="glass-panel border-t border-gray-800 flex-shrink-0">
-        <div className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+      {/* Input form */}
+      <form onSubmit={handleSend} className="glass-panel border-t border-gray-800">
+        <div className="safe-bottom safe-left safe-right p-4">
           <div className="flex gap-2">
             <input
               type="text"
