@@ -64,7 +64,7 @@ export default function RoomList({
   );
 
   return (
-    <div className="safe-area-view fixed inset-0 flex flex-col bg-black text-white">
+    <div className="safe-area-view fixed inset-0 flex flex-col bg-black text-white overflow-hidden">
       {/* Main scrollable content */}
       <div className="flex-1 overflow-y-auto">
         <div className="safe-top p-4 md:p-6">
@@ -147,7 +147,7 @@ export default function RoomList({
       </div>
 
       {/* Footer */}
-      <footer className="glass-panel border-t border-gray-800 safe-bottom p-4">
+      <footer className="glass-panel border-t border-gray-800 safe-bottom p-4 w-full">
         <div className="max-w-2xl mx-auto">
           <div className="flex flex-col items-center gap-4">
             <div className="flex items-center gap-6">
