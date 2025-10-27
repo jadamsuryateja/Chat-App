@@ -102,8 +102,6 @@
     padding-bottom: env(safe-area-inset-bottom);
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
-    /* Remove any border radius that might be inherited */
-    border-radius: 0;
   }
 
   .safe-area-top {
@@ -118,32 +116,20 @@
 /* Add these base styles */
 @layer base {
   html, body, #root {
-    @apply h-full w-full overflow-hidden;
-    margin: 0;
-    padding: 0;
+    @apply h-full w-full overflow-hidden overscroll-none;
+    background-color: black;
   }
 
-  /* Prevent any default margins that might create gaps */
-  * {
-    margin: 0;
-    padding: 0;
+  body {
+    /* Prevent overscroll bounce */
+    position: fixed;
+    width: 100%;
   }
-}
 
-/* Add this at the top of your CSS */
-:root {
-  --sat: env(safe-area-inset-top);
-  --sab: env(safe-area-inset-bottom);
-  --sal: env(safe-area-inset-left);
-  --sar: env(safe-area-inset-right);
-}
-
-/* Fallbacks for browsers that don't support env() */
-@supports not (padding: env(safe-area-inset-top)) {
-  :root {
-    --sat: 0px;
-    --sab: 0px;
-    --sal: 0px;
-    --sar: 0px;
+  /* Fix for iOS height issues */
+  @supports (-webkit-touch-callout: none) {
+    .min-h-screen {
+      min-height: -webkit-fill-available;
+    }
   }
 }

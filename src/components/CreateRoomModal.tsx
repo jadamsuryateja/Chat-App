@@ -52,7 +52,7 @@ export default function CreateRoomModal({ onClose, onSuccess }: CreateRoomModalP
   };
 
   return (
-    <div className="safe-area-view fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
       <div className="glass-panel rounded-3xl p-6 md:p-8 max-w-md w-full animate-scale-in">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
