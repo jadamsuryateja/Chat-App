@@ -238,8 +238,8 @@ export default function ChatRoom({ roomId, roomName, onBack }: ChatRoomProps) {
       </div>
 
       <form onSubmit={handleSend} className="glass-panel border-t border-gray-800 flex-shrink-0">
-        <div className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-          <div className="flex gap-2">
+        <div className="p-4 safe-area-bottom">
+          <div className="flex gap-2 max-w-2xl mx-auto">
             <input
               type="text"
               value={newMessage}
