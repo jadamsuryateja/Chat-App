@@ -1,22 +1,35 @@
 import { useState, useEffect } from 'react';
 import { UserProvider } from './context/UserContext';
-import RoomList from './components/RoomList';
+import RoomList, { preloadRooms } from './components/RoomList';
 import ChatRoom from './components/ChatRoom';
 import CreateRoomModal from './components/CreateRoomModal';
 import JoinRoomModal from './components/JoinRoomModal';
 import { supabase } from './lib/supabase';
 import { initNotificationService, requestNotificationPermission, getNotificationPermission } from './services/notificationService';
+import { useUser } from './context/UserContext';
+import { ChatRoom as ChatRoomType } from './lib/supabase';
 
 type View = 'list' | 'chat';
 
 function AppContent() {
+  const { userId } = useUser();
   const [view, setView] = useState<View>('list');
+  const [initialRooms, setInitialRooms] = useState<(ChatRoomType & { memberCount: number })[]>([]);
   const [selectedRoomId, setSelectedRoomId] = useState<string>('');
   const [selectedRoomName, setSelectedRoomName] = useState<string>('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [notificationPromptShown, setNotificationPromptShown] = useState(false);
+
+  useEffect(() => {
+    // Pre-fetch rooms when component mounts
+    if (userId) {
+      preloadRooms(userId).then((rooms: (ChatRoomType & { memberCount: number })[]) => {
+        setInitialRooms(rooms);
+      });
+    }
+  }, [userId]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -71,6 +84,7 @@ function AppContent() {
       {view === 'list' ? (
         <RoomList
           key={refreshKey}
+          initialRooms={initialRooms}
           onSelectRoom={handleSelectRoom}
           onCreateRoom={() => setShowCreateModal(true)}
           onJoinRoom={() => setShowJoinModal(true)}

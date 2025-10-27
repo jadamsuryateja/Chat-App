@@ -8,16 +8,25 @@ interface RoomListProps {
   onSelectRoom: (roomId: string) => void;
   onCreateRoom: () => void;
   onJoinRoom: () => void;
+  initialRooms?: (ChatRoom & { memberCount: number })[];
 }
 
-export default function RoomList({ onSelectRoom, onCreateRoom, onJoinRoom }: RoomListProps) {
+export default function RoomList({ 
+  onSelectRoom, 
+  onCreateRoom, 
+  onJoinRoom,
+  initialRooms = [] 
+}: RoomListProps) {
   const { userId } = useUser();
-  const [rooms, setRooms] = useState<(ChatRoom & { memberCount: number })[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [rooms, setRooms] = useState<(ChatRoom & { memberCount: number })[]>(initialRooms);
+  const [loading, setLoading] = useState(!initialRooms.length);
 
   useEffect(() => {
-    loadRooms();
-  }, [userId]);
+    // Only fetch if we don't have initial rooms or if userId changes
+    if (userId && (!initialRooms.length || rooms !== initialRooms)) {
+      loadRooms();
+    }
+  }, [userId, initialRooms]);
 
   const loadRooms = async () => {
     if (!userId) return;
@@ -31,6 +40,28 @@ export default function RoomList({ onSelectRoom, onCreateRoom, onJoinRoom }: Roo
       setLoading(false);
     }
   };
+
+  // Pre-render skeleton loading state
+  const renderSkeleton = () => (
+    <div className="space-y-3">
+      {[...Array(3)].map((_, index) => (
+        <div 
+          key={index}
+          className="w-full glass-panel p-5 rounded-2xl animate-pulse"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4 flex-1">
+              <div className="w-12 h-12 rounded-xl bg-gray-800"></div>
+              <div className="flex-1">
+                <div className="h-5 bg-gray-800 rounded w-1/3 mb-2"></div>
+                <div className="h-4 bg-gray-800 rounded w-1/4"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <div className="fixed inset-0 flex flex-col bg-black text-white">
@@ -70,10 +101,7 @@ export default function RoomList({ onSelectRoom, onCreateRoom, onJoinRoom }: Roo
             </div>
 
             {loading ? (
-              <div className="text-center py-12">
-                <div className="inline-block w-8 h-8 border-4 border-gray-700 border-t-white rounded-full animate-spin"></div>
-                <p className="mt-4 text-gray-400">Loading rooms...</p>
-              </div>
+              renderSkeleton()
             ) : rooms.length === 0 ? (
               <div className="glass-panel p-12 rounded-3xl text-center">
                 <MessageCircle className="w-16 h-16 text-gray-600 mx-auto mb-4" />
@@ -151,11 +179,21 @@ export default function RoomList({ onSelectRoom, onCreateRoom, onJoinRoom }: Roo
             </div>
             <div className="text-center text-sm text-gray-400">
               <p className="mb-1">Developed by</p>
-              <p className="font-medium">JADAM SURYA TEJA & KRUPA CHAITANYA YELLAMELLI</p>
+              <p className="font-medium">JADAM SURYA TEJA & KRUPA CHAITANYA YELL</p>
             </div>
           </div>
         </div>
       </footer>
     </div>
   );
+}
+
+// Add this function to pre-fetch rooms
+export async function preloadRooms(userId: string) {
+  try {
+    return await getUserRooms(userId);
+  } catch (error) {
+    console.error('Error preloading rooms:', error);
+    return [];
+  }
 }
